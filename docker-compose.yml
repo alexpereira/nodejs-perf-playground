@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+
+  backend:
+    build: ./backend
+    ports:
+      - "3001:3001"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'       # Limit CPU usage to 10% of a single core
+          memory: 128M      # Set memory limit to 128MB

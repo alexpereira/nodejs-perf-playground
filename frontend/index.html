@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+  <h2>Node.js Performance Playground</h2>
+  <label>Task Size:</label>
+  <input type="number" id="taskSize" value="100000000" />
+  <button onclick="startTask()">Start Task</button>
+  <h3>Metrics:</h3>
+  <pre id="metrics"></pre>
+
+  <script>
+    const WORKER_URL = 'http://localhost:3001';
+
+    function startTask() {
+      const size = document.getElementById('taskSize').value;
+      fetch(`${WORKER_URL}/do-task`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taskSize: parseInt(size) }),
+      });
+    }
+
+    async function fetchMetrics() {
+      const res = await fetch(`${WORKER_URL}/metrics`);
+      const data = await res.json();
+      document.getElementById('metrics').textContent = JSON.stringify(data, null, 2);
+    }
+
+    setInterval(fetchMetrics, 1000);
+  </script>
+</body>
+
+</html>
