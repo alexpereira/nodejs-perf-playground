@@ -21,13 +21,42 @@
       });
     }
 
-    async function fetchMetrics() {
-      const res = await fetch(`${WORKER_URL}/metrics`);
-      const data = await res.json();
+    function updateMetricsDisplay(data) {
       document.getElementById('metrics').textContent = JSON.stringify(data, null, 2);
     }
 
-    setInterval(fetchMetrics, 1000);
+    function startSSE() {
+      const source = new EventSource(`${WORKER_URL}/metrics-stream`);
+
+      source.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        updateMetricsDisplay(data);
+      };
+
+      source.onerror = (err) => {
+        console.warn('SSE failed, falling back to polling.', err);
+        source.close();
+        startPolling();
+      };
+    }
+
+    function startPolling() {
+      fetchMetrics(); // fetch immediately
+      setInterval(fetchMetrics, 1000);
+    }
+
+    async function fetchMetrics() {
+      try {
+        const res = await fetch(`${WORKER_URL}/metrics`);
+        const data = await res.json();
+        updateMetricsDisplay(data);
+      } catch (err) {
+        console.error('Polling failed:', err);
+      }
+    }
+
+    // Start by trying SSE
+    startSSE();
   </script>
 </body>
 
