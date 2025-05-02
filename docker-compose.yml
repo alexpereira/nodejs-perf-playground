@@ -10,6 +10,7 @@ services:
     build: ./backend
     ports:
       - "3001:3001"
+    cpuset: "0"
     deploy:
       resources:
         limits:

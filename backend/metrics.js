@@ -64,8 +64,15 @@ function removeSseClient(res) {
   sseClients.delete(res);
 }
 
-function setMetricsRefs(newRefs) {
-  metricsState = { ...metricsState, ...newRefs };
+function setMetricsRefs(update) {
+  if (typeof update === 'function') {
+    const newState = update({ ...metricsState }); // clone to prevent accidental mutation
+    Object.assign(metricsState, newState);
+  } else if (typeof update === 'object') {
+    Object.assign(metricsState, update);
+  } else {
+    throw new Error('setMetricsRefs expects an object or a function');
+  }
 }
 
 module.exports = {
